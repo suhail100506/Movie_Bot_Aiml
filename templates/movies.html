@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - CineScope</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <h1>CINE<span class="brand-highlight">SCOPE</span></h1>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Movies</a>
+                <a href="#" class="nav-link">TV Shows</a>
+                <a href="#" class="nav-link">People</a>
+                <a href="#" class="nav-link">More</a>
+            </div>
+            <div class="nav-right">
+                <button class="nav-icon-btn">+</button>
+                <select class="language-selector" id="languageSelect">
+                    <option value="en-US">EN</option>
+                    <option value="hi-IN">HI</option>
+                    <option value="ta-IN">TA</option>
+                </select>
+                <button class="nav-icon-btn">🔔</button>
+                <div class="user-avatar">M</div>
+                <button class="nav-icon-btn search-btn">🔍</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <h2 class="section-title">Search Results</h2>
+        
+        {% if error %}
+        <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 20px; color: #856404;">
+            <strong>⚠️ Error:</strong> {{ error }}
+            <br><small>Please check your internet connection and try again.</small>
+        </div>
+        {% endif %}
+        
+        {% if movies %}
+        <div class="movies-grid">
+            {% for movie in movies %}
+            <div class="movie-card">
+                <a href="/movie/{{ movie.id }}" class="movie-link">
+                    <div class="movie-poster">
+                        {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                             alt="{{ movie.title }}"
+                             loading="lazy">
+                        {% else %}
+                        <div class="no-image">No Image</div>
+                        {% endif %}
+                        <div class="rating-badge">
+                            <svg class="rating-circle" viewBox="0 0 36 36">
+                                <path class="circle-bg"
+                                    d="M18 2.0845
+                                    a 15.9155 15.9155 0 0 1 0 31.831
+                                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none"
+                                    stroke="#204529"
+                                    stroke-width="3"/>
+                                <path class="circle"
+                                    d="M18 2.0845
+                                    a 15.9155 15.9155 0 0 1 0 31.831
+                                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none"
+                                    stroke="#21d07a"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ (movie.vote_average * 10)|int }}, 100"/>
+                            </svg>
+                            <div class="rating-text">{{ (movie.vote_average * 10)|int }}<sup>%</sup></div>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">{{ movie.title }}</h3>
+                        <p class="movie-date">{{ movie.release_date }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #666; font-size: 18px; margin-top: 40px;">No movies found. Try another search.</p>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

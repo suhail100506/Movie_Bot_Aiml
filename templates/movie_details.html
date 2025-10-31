@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }} - CineScope</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .movie-details-hero {
+            background: linear-gradient(to bottom, rgba(3, 37, 65, 0.9), rgba(3, 37, 65, 0.9)),
+                        url('https://image.tmdb.org/t/p/original{{ movie.backdrop_path }}');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 40px 0;
+        }
+        .details-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            gap: 40px;
+        }
+        .details-poster {
+            width: 300px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        .details-poster img {
+            width: 100%;
+            display: block;
+        }
+        .details-info {
+            flex: 1;
+        }
+        .details-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .details-meta {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .details-rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .rating-circle-large {
+            width: 60px;
+            height: 60px;
+            background-color: #081c22;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .rating-circle-large svg {
+            width: 60px;
+            height: 60px;
+            transform: rotate(-90deg);
+        }
+        .rating-text-large {
+            position: absolute;
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .details-tagline {
+            font-size: 18px;
+            font-style: italic;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+        .details-section {
+            margin-bottom: 25px;
+        }
+        .details-section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .details-section p {
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        .download-btn {
+            background-color: #01b4e4;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        .download-btn:hover {
+            background-color: #01a0d1;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .info-item strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <h1>CINE<span class="brand-highlight">SCOPE</span></h1>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Movies</a>
+                <a href="#" class="nav-link">TV Shows</a>
+                <a href="#" class="nav-link">People</a>
+                <a href="#" class="nav-link">More</a>
+            </div>
+            <div class="nav-right">
+                <button class="nav-icon-btn">+</button>
+                <select class="language-selector" id="languageSelect">
+                    <option value="en-US">EN</option>
+                    <option value="hi-IN">HI</option>
+                    <option value="ta-IN">TA</option>
+                </select>
+                <button class="nav-icon-btn">🔔</button>
+                <div class="user-avatar">M</div>
+                <button class="nav-icon-btn search-btn">🔍</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Movie Details Hero Section -->
+    <div class="movie-details-hero">
+        <div class="details-container">
+            <div class="details-poster">
+                {% if movie.poster_path %}
+                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                {% else %}
+                <div style="aspect-ratio: 2/3; background: #e0e0e0; display: flex; align-items: center; justify-content: center;">
+                    <p>No Image</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="details-info">
+                <h1 class="details-title">{{ movie.title }} <span style="font-weight: 400; opacity: 0.8;">({{ movie.release_date[:4] if movie.release_date else 'N/A' }})</span></h1>
+                
+                <div class="details-meta">
+                    <span>{{ movie.release_date }}</span>
+                    {% if movie.genres %}
+                    <span>•</span>
+                    <span>{{ movie.genres | map(attribute='name') | join(', ') }}</span>
+                    {% endif %}
+                    {% if movie.runtime %}
+                    <span>•</span>
+                    <span>{{ movie.runtime }} min</span>
+                    {% endif %}
+                </div>
+
+                <div class="details-rating">
+                    <div class="rating-circle-large">
+                        <svg viewBox="0 0 36 36">
+                            <path class="circle-bg"
+                                d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#204529"
+                                stroke-width="3"/>
+                            <path class="circle"
+                                d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#21d07a"
+                                stroke-width="3"
+                                stroke-dasharray="{{ (movie.vote_average * 10)|int }}, 100"/>
+                        </svg>
+                        <div class="rating-text-large">{{ (movie.vote_average * 10)|int }}<sup style="font-size: 10px;">%</sup></div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700;">User Score</div>
+                    </div>
+                </div>
+
+                {% if movie.tagline %}
+                <p class="details-tagline">{{ movie.tagline }}</p>
+                {% endif %}
+
+                <div class="details-section">
+                    <h3>Overview</h3>
+                    <p>{{ movie.overview if movie.overview else 'No overview available.' }}</p>
+                </div>
+
+                <button class="download-btn" onclick="getDownloadLink('{{ movie.id }}', '{{ movie.original_language }}')">
+                    Get Download Link
+                </button>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Original Language</strong>
+                        <span>{{ movie.original_language | upper }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Budget</strong>
+                        <span>${{ '{:,.0f}'.format(movie.budget) if movie.budget else 'N/A' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Revenue</strong>
+                        <span>${{ '{:,.0f}'.format(movie.revenue) if movie.revenue else 'N/A' }}</span>
+                    </div>
+                    {% if movie.production_companies %}
+                    <div class="info-item">
+                        <strong>Production</strong>
+                        <span>{{ movie.production_companies[0].name }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getDownloadLink(movieId, language) {
+            fetch(`/download_link?movie_id=${movieId}&language=${language}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.link) {
+                        window.open(data.link, '_blank');
+                    } else {
+                        alert(data.message || 'No legal download link found.');
+                    }
+                })
+                .catch(error => {
+                    alert('Error fetching download link.');
+                    console.error(error);
+                });
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
