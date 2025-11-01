@@ -123,6 +123,11 @@
             margin-bottom: 5px;
             opacity: 0.8;
         }
+        .details-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
     </style>
 </head>
 <body>
@@ -216,9 +221,16 @@
                     <p>{{ movie.overview if movie.overview else 'No overview available.' }}</p>
                 </div>
 
-                <button class="download-btn" onclick="getDownloadLink('{{ movie.id }}', '{{ movie.original_language }}')">
-                    Get Download Link
-                </button>
+                <div style="margin-top: 20px;">
+                    <button class="download-btn" onclick="getDownloadLinks('{{ movie.id }}', '{{ movie.title }}', '{{ movie.original_language }}')">
+                        🎬 Get Download Links
+                    </button>
+                </div>
+                
+                <div id="downloadLinksContainer" style="margin-top: 20px; display: none;">
+                    <h3 style="font-size: 18px; margin-bottom: 15px;">Available Download Sources:</h3>
+                    <div id="downloadLinksList" style="display: grid; gap: 10px;"></div>
+                </div>
 
                 <div class="info-grid">
                     <div class="info-item">
@@ -244,19 +256,92 @@
         </div>
     </div>
 
+    <!-- Cast Section -->
+    {% if cast %}
+    <div style="background: #fff; padding: 40px 0;">
+        <div class="details-container">
+            <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 20px; color: #000;">Top Billed Cast</h2>
+            <div style="display: flex; gap: 20px; overflow-x: auto; padding-bottom: 10px;">
+                {% for actor in cast %}
+                <div style="min-width: 140px; background: #fff; border: 1px solid #e3e3e3; border-radius: 8px; overflow: hidden;">
+                    {% if actor.profile_path %}
+                    <img src="https://image.tmdb.org/t/p/w185{{ actor.profile_path }}" alt="{{ actor.name }}" style="width: 100%; aspect-ratio: 2/3; object-fit: cover;">
+                    {% else %}
+                    <div style="width: 100%; aspect-ratio: 2/3; background: #e0e0e0; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>
+                    {% endif %}
+                    <div style="padding: 10px;">
+                        <div style="font-weight: 700; font-size: 14px; color: #000;">{{ actor.name }}</div>
+                        <div style="font-size: 13px; color: #666;">{{ actor.character }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Reviews Section -->
+    {% if reviews %}
+    <div style="background: #f8f8f8; padding: 40px 0;">
+        <div class="details-container">
+            <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 20px; color: #000;">Reviews</h2>
+            {% for review in reviews[:3] %}
+            <div style="background: #fff; border: 1px solid #e3e3e3; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    {% if review.author_details.avatar_path %}
+                    <img src="https://image.tmdb.org/t/p/w45{{ review.author_details.avatar_path }}" alt="{{ review.author }}" style="width: 45px; height: 45px; border-radius: 50%;">
+                    {% else %}
+                    <div style="width: 45px; height: 45px; border-radius: 50%; background: #01b4e4; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700;">{{ review.author[0] }}</div>
+                    {% endif %}
+                    <div>
+                        <div style="font-weight: 700; color: #000;">{{ review.author }}</div>
+                        <div style="font-size: 13px; color: #666;">{{ review.created_at[:10] }}</div>
+                    </div>
+                    {% if review.author_details.rating %}
+                    <div style="margin-left: auto; background: #000; color: #fff; padding: 5px 10px; border-radius: 4px; font-weight: 700;">★ {{ review.author_details.rating }}/10</div>
+                    {% endif %}
+                </div>
+                <div style="color: #333; line-height: 1.6;">
+                    {{ review.content[:500] }}{% if review.content|length > 500 %}...{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <script>
-        function getDownloadLink(movieId, language) {
-            fetch(`/download_link?movie_id=${movieId}&language=${language}`)
+        function getDownloadLinks(movieId, movieTitle, language) {
+            const container = document.getElementById('downloadLinksContainer');
+            const linksList = document.getElementById('downloadLinksList');
+            
+            fetch(`/download_link?movie_id=${movieId}&language=${language}&title=${encodeURIComponent(movieTitle)}`)
                 .then(response => response.json())
                 .then(data => {
+                    linksList.innerHTML = '';
+                    
                     if (data.link) {
                         window.open(data.link, '_blank');
+                    } else if (data.links && data.links.length > 0) {
+                        container.style.display = 'block';
+                        data.links.forEach(link => {
+                            const linkCard = document.createElement('div');
+                            linkCard.style.cssText = 'background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;';
+                            linkCard.innerHTML = `
+                                <div>
+                                    <strong style="font-size: 16px;">${link.name}</strong>
+                                    <span style="margin-left: 10px; font-size: 14px; opacity: 0.8;">Quality: ${link.quality}</span>
+                                </div>
+                                <a href="${link.url}" target="_blank" style="background: #01b4e4; color: white; padding: 8px 20px; border-radius: 16px; text-decoration: none; font-weight: 600;">Visit</a>
+                            `;
+                            linksList.appendChild(linkCard);
+                        });
                     } else {
-                        alert(data.message || 'No legal download link found.');
+                        alert(data.message || 'No download links available.');
                     }
                 })
                 .catch(error => {
-                    alert('Error fetching download link.');
+                    alert('Error fetching download links.');
                     console.error(error);
                 });
         }

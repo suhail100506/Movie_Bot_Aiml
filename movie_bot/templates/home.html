@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineScope - Movie Discovery</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1><span class="brand-highlight">MMDB</span></h1>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Movies</a>
+                <a href="/trending" class="nav-link">Trending</a>
+                <a href="#" class="nav-link" id="languagesLink">Languages</a>
+            </div>
+            <div class="nav-right">
+                <select class="language-selector" id="languageFilter">
+                    <option value="">All Languages</option>
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="ta">Tamil</option>
+                    <option value="te">Telugu</option>
+                    <option value="ml">Malayalam</option>
+                    <option value="kn">Kannada</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="ja">Japanese</option>
+                    <option value="ko">Korean</option>
+                </select>
+                <button class="nav-icon-btn search-btn">🔍</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="content-wrapper">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="filter-section">
+                    <div class="filter-header collapsible">
+                        <h3>Sort</h3>
+                        <span class="arrow-down">›</span>
+                    </div>
+                    <div class="filter-content">
+                        <div class="filter-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sortBy" value="release_date.desc" checked>
+                                <span>Newest First</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sortBy" value="popularity.desc">
+                                <span>Most Popular</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sortBy" value="vote_average.desc">
+                                <span>Highest Rated</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sortBy" value="release_date.asc">
+                                <span>Oldest First</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-header">
+                        <h3>Where To Watch</h3>
+                        <span class="badge">79</span>
+                        <span class="arrow">›</span>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-header collapsible">
+                        <h3>Filters</h3>
+                        <span class="arrow-down">›</span>
+                    </div>
+                    <div class="filter-content">
+                        <div class="filter-group">
+                            <h4>Show Me</h4>
+                            <label class="radio-option">
+                                <input type="radio" name="showMe" value="all" checked>
+                                <span>Everything</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="showMe" value="notSeen">
+                                <span>Movies I Haven't Seen</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="showMe" value="seen">
+                                <span>Movies I Have Seen</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Availabilities</h4>
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="searchAllAvailabilities">
+                                <span>Search all availabilities?</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Release Dates</h4>
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="searchAllReleases">
+                                <span>Search all releases?</span>
+                            </label>
+                            <div class="date-inputs">
+                                <label>from</label>
+                                <input type="date" class="date-input" id="fromDate">
+                                <label>to</label>
+                                <input type="date" class="date-input" id="toDate">
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Genres</h4>
+                            <div class="genre-tags" id="genreTags">
+                                {% for genre in genres %}
+                                <button class="genre-tag" data-id="{{ genre.id }}">{{ genre.name }}</button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Language</h4>
+                            <select class="date-input" id="languageFilter" style="width: 100%;">
+                                <option value="">None Selected</option>
+                                <option value="en">English</option>
+                                <option value="hi">Hindi</option>
+                                <option value="ta">Tamil</option>
+                                <option value="te">Telugu</option>
+                                <option value="ml">Malayalam</option>
+                                <option value="kn">Kannada</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="ja">Japanese</option>
+                                <option value="ko">Korean</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>User Score</h4>
+                            <input type="range" id="userScore" min="0" max="10" value="0" step="0.5" style="width: 100%;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+                                <span>0</span>
+                                <span id="userScoreValue">0</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Minimum User Votes</h4>
+                            <input type="range" id="minVotes" min="0" max="500" value="0" step="50" style="width: 100%;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+                                <span>0</span>
+                                <span id="minVotesValue">0</span>
+                                <span>500</span>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Runtime (minutes)</h4>
+                            <input type="range" id="runtime" min="0" max="360" value="0" step="15" style="width: 100%;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+                                <span>0</span>
+                                <span id="runtimeValue">0</span>
+                                <span>360</span>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Keywords</h4>
+                            <input type="text" id="keywords" class="date-input" placeholder="Filter by keywords..." style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="search-button">Search</button>
+            </aside>
+
+            <!-- Movies Grid -->
+            <main class="movies-section">
+                <h2 class="section-title">Popular Movies</h2>
+                
+                {% if error %}
+                <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 20px; color: #856404;">
+                    <strong>⚠️ Error:</strong> {{ error }}
+                    <br><small>Please check your internet connection and try again.</small>
+                </div>
+                {% endif %}
+                
+                {% if not movies and not error %}
+                <p style="color: #666; font-size: 18px; margin-top: 40px;">No movies available at the moment.</p>
+                {% endif %}
+                
+                <div class="movies-grid" id="moviesGrid">
+                    {% for movie in movies %}
+                    <div class="movie-card">
+                        <a href="/movie/{{ movie.id }}" class="movie-link">
+                            <div class="movie-poster">
+                                {% if movie.poster_path %}
+                                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                                     alt="{{ movie.title }}"
+                                     loading="lazy">
+                                {% else %}
+                                <div class="no-image">No Image</div>
+                                {% endif %}
+                                <div class="rating-badge">
+                                    <svg class="rating-circle" viewBox="0 0 36 36">
+                                        <path class="circle-bg"
+                                            d="M18 2.0845
+                                            a 15.9155 15.9155 0 0 1 0 31.831
+                                            a 15.9155 15.9155 0 0 1 0 -31.831"
+                                            fill="none"
+                                            stroke="#204529"
+                                            stroke-width="3"/>
+                                        <path class="circle"
+                                            d="M18 2.0845
+                                            a 15.9155 15.9155 0 0 1 0 31.831
+                                            a 15.9155 15.9155 0 0 1 0 -31.831"
+                                            fill="none"
+                                            stroke="#21d07a"
+                                            stroke-width="3"
+                                            stroke-dasharray="{{ (movie.vote_average * 10)|int }}, 100"/>
+                                    </svg>
+                                    <div class="rating-text">{{ (movie.vote_average * 10)|int }}<sup>%</sup></div>
+                                </div>
+                            </div>
+                            <div class="movie-info">
+                                <h3 class="movie-title">{{ movie.title }}</h3>
+                                <p class="movie-date">{{ movie.release_date }}</p>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div style="text-align: center; margin-top: 40px;">
+                    <button class="search-button" id="loadMoreBtn" style="max-width: 400px; margin: 0 auto;">
+                        Load More Movies
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        let currentPage = 1;
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                currentPage++;
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('page', currentPage);
+                
+                loadMoreBtn.textContent = 'Loading...';
+                loadMoreBtn.disabled = true;
+                
+                fetch(`${window.location.pathname}?${urlParams.toString()}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newMovies = doc.querySelectorAll('.movie-card');
+                        const moviesGrid = document.getElementById('moviesGrid');
+                        
+                        newMovies.forEach(movie => {
+                            moviesGrid.appendChild(movie.cloneNode(true));
+                        });
+                        
+                        loadMoreBtn.textContent = 'Load More Movies';
+                        loadMoreBtn.disabled = false;
+                        
+                        if (newMovies.length === 0) {
+                            loadMoreBtn.textContent = 'No More Movies';
+                            loadMoreBtn.disabled = true;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading more movies:', error);
+                        loadMoreBtn.textContent = 'Load More Movies';
+                        loadMoreBtn.disabled = false;
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

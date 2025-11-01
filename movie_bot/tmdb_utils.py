@@ -80,3 +80,62 @@ def get_genres():
     }
     url = f'https://api.themoviedb.org/3/genre/movie/list?api_key={TMDB_API_KEY}'
     return make_api_request(url, headers)
+
+def discover_movies(language='en-US', page=1, genre_ids=None, sort_by='popularity.desc', year=None, from_date=None, to_date=None, **kwargs):
+    headers = {
+        'Authorization': f'Bearer {TMDB_ACCESS_TOKEN}',
+        'Content-Type': 'application/json;charset=utf-8'
+    }
+    url = f'https://api.themoviedb.org/3/discover/movie?language={language}&page={page}&sort_by={sort_by}&api_key={TMDB_API_KEY}'
+    if genre_ids:
+        url += f'&with_genres={genre_ids}'
+    if year:
+        url += f'&primary_release_year={year}'
+    if from_date:
+        url += f'&primary_release_date.gte={from_date}'
+    if to_date:
+        url += f'&primary_release_date.lte={to_date}'
+    for key, value in kwargs.items():
+        if value:
+            url += f'&{key}={value}'
+    return make_api_request(url, headers)
+
+def get_movies_by_language(language_code, page=1):
+    headers = {
+        'Authorization': f'Bearer {TMDB_ACCESS_TOKEN}',
+        'Content-Type': 'application/json;charset=utf-8'
+    }
+    url = f'https://api.themoviedb.org/3/discover/movie?with_original_language={language_code}&sort_by=popularity.desc&page={page}&api_key={TMDB_API_KEY}'
+    return make_api_request(url, headers)
+
+def get_trending_movies(time_window='week', language='en-US', page=1):
+    headers = {
+        'Authorization': f'Bearer {TMDB_ACCESS_TOKEN}',
+        'Content-Type': 'application/json;charset=utf-8'
+    }
+    url = f'https://api.themoviedb.org/3/trending/movie/{time_window}?language={language}&page={page}&api_key={TMDB_API_KEY}'
+    return make_api_request(url, headers)
+
+def get_movie_videos(movie_id, language='en-US'):
+    headers = {
+        'Authorization': f'Bearer {TMDB_ACCESS_TOKEN}',
+        'Content-Type': 'application/json;charset=utf-8'
+    }
+    url = f'https://api.themoviedb.org/3/movie/{movie_id}/videos?language={language}&api_key={TMDB_API_KEY}'
+    return make_api_request(url, headers)
+
+def get_movie_credits(movie_id):
+    headers = {
+        'Authorization': f'Bearer {TMDB_ACCESS_TOKEN}',
+        'Content-Type': 'application/json;charset=utf-8'
+    }
+    url = f'https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={TMDB_API_KEY}'
+    return make_api_request(url, headers)
+
+def get_movie_reviews(movie_id, page=1):
+    headers = {
+        'Authorization': f'Bearer {TMDB_ACCESS_TOKEN}',
+        'Content-Type': 'application/json;charset=utf-8'
+    }
+    url = f'https://api.themoviedb.org/3/movie/{movie_id}/reviews?page={page}&api_key={TMDB_API_KEY}'
+    return make_api_request(url, headers)

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Movies - MMDB</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <h1><span class="brand-highlight">MMDB</span></h1>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Movies</a>
+                <a href="/trending" class="nav-link active">Trending</a>
+                <a href="#" class="nav-link">Languages</a>
+            </div>
+            <div class="nav-right">
+                <select class="language-selector" id="timeWindow">
+                    <option value="day" {{ 'selected' if time_window == 'day' else '' }}>Today</option>
+                    <option value="week" {{ 'selected' if time_window == 'week' else '' }}>This Week</option>
+                </select>
+                <button class="nav-icon-btn search-btn">🔍</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <h2 class="section-title">Trending Movies - {{ 'Today' if time_window == 'day' else 'This Week' }}</h2>
+        
+        {% if error %}
+        <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>⚠️ Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="movies-grid">
+            {% for movie in movies %}
+            <div class="movie-card">
+                <a href="/movie/{{ movie.id }}" class="movie-link">
+                    <div class="movie-poster">
+                        {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" loading="lazy">
+                        {% else %}
+                        <div class="no-image">No Image</div>
+                        {% endif %}
+                        <div class="rating-badge">
+                            <svg class="rating-circle" viewBox="0 0 36 36">
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#204529" stroke-width="3"/>
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#21d07a" stroke-width="3" stroke-dasharray="{{ (movie.vote_average * 10)|int }}, 100"/>
+                            </svg>
+                            <div class="rating-text">{{ (movie.vote_average * 10)|int }}<sup>%</sup></div>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">{{ movie.title }}</h3>
+                        <p class="movie-date">{{ movie.release_date }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="search-button" id="loadMoreBtn" style="max-width: 400px; margin: 0 auto;">
+                Load More Movies
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                currentPage++;
+                const timeWindow = '{{ time_window }}';
+                
+                loadMoreBtn.textContent = 'Loading...';
+                loadMoreBtn.disabled = true;
+                
+                fetch(`/trending?time=${timeWindow}&page=${currentPage}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newMovies = doc.querySelectorAll('.movie-card');
+                        const moviesGrid = document.querySelector('.movies-grid');
+                        
+                        newMovies.forEach(movie => {
+                            moviesGrid.appendChild(movie.cloneNode(true));
+                        });
+                        
+                        loadMoreBtn.textContent = 'Load More Movies';
+                        loadMoreBtn.disabled = false;
+                        
+                        if (newMovies.length === 0) {
+                            loadMoreBtn.textContent = 'No More Movies';
+                            loadMoreBtn.disabled = true;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loadMoreBtn.textContent = 'Load More Movies';
+                        loadMoreBtn.disabled = false;
+                    });
+            });
+        }
+    </script>
+    <script>
+        document.getElementById('timeWindow').addEventListener('change', (e) => {
+            window.location.href = `/trending?time=${e.target.value}`;
+        });
+        
+        document.querySelector('.search-btn').addEventListener('click', () => {
+            const query = prompt('Enter movie name:');
+            if (query) window.location.href = `/search?query=${encodeURIComponent(query)}`;
+        });
+    </script>
+</body>
+</html>
