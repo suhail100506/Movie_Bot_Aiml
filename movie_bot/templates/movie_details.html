@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ movie.title }} - CineScope</title>
+    <title>{{ movie.title }} - MMDB</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -50,18 +50,42 @@
         .details-rating {
             display: flex;
             align-items: center;
-            gap: 10px;
+            margin: 20px 0;
+            gap: 15px;
         }
-        .rating-circle-large {
-            width: 60px;
-            height: 60px;
-            background-color: #081c22;
+        .rating-percentage {
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
+            background-color: #081c22;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-weight: 700;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .percentage-number {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .percentage-sign {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+        .rating-label {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        /* Removed old rating circle styles */
+        .rating-circle-large {
             position: relative;
         }
+
+        
         .rating-circle-large svg {
             width: 60px;
             height: 60px;
@@ -187,29 +211,11 @@
                 </div>
 
                 <div class="details-rating">
-                    <div class="rating-circle-large">
-                        <svg viewBox="0 0 36 36">
-                            <path class="circle-bg"
-                                d="M18 2.0845
-                                a 15.9155 15.9155 0 0 1 0 31.831
-                                a 15.9155 15.9155 0 0 1 0 -31.831"
-                                fill="none"
-                                stroke="#204529"
-                                stroke-width="3"/>
-                            <path class="circle"
-                                d="M18 2.0845
-                                a 15.9155 15.9155 0 0 1 0 31.831
-                                a 15.9155 15.9155 0 0 1 0 -31.831"
-                                fill="none"
-                                stroke="#21d07a"
-                                stroke-width="3"
-                                stroke-dasharray="{{ (movie.vote_average * 10)|int }}, 100"/>
-                        </svg>
-                        <div class="rating-text-large">{{ (movie.vote_average * 10)|int }}<sup style="font-size: 10px;">%</sup></div>
+                    <div class="rating-percentage">
+                        <span class="percentage-number">{{ (movie.vote_average * 10)|int }}</span>
+                        <span class="percentage-sign">%</span>
                     </div>
-                    <div>
-                        <div style="font-weight: 700;">User Score</div>
-                    </div>
+                    <div class="rating-label">User Score</div>
                 </div>
 
                 {% if movie.tagline %}
